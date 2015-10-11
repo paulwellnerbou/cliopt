@@ -1,0 +1,66 @@
+plugins {
+    id "com.jfrog.bintray" version "1.2"
+}
+
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+
+group = 'de.wellnerbou'
+version = '0.1-SNAPSHOT'
+
+description = """cliopt"""
+
+repositories {
+    jcenter()
+}
+
+sourceCompatibility = 1.7
+targetCompatibility = 1.7
+
+dependencies {
+    testCompile 'junit:junit:4.12'
+    testCompile 'org.assertj:assertj-core:2.2.0'
+}
+
+// user and key configuration for bintray deployment:
+// ./gradlew bintrayUpload -PpublishUser=<USER> -PpublishKey=<KEY>
+if (!project.hasProperty("publishUser")) {
+    ext.publishUser = ""
+}
+if (!project.hasProperty("publishKey")) {
+    ext.publishKey = ""
+}
+
+
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'cliopt'
+            artifact sourceJar {
+                classifier "sources"
+            }
+        }
+    }
+}
+
+bintray {
+    user = "$publishUser"
+    key = "$publishKey"
+    publications = ['mavenJava']
+
+    dryRun = false
+    publish = true
+
+    pkg {
+        repo = 'maven'
+        name = 'git-changelog'
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/paulwellnerbou/cliopt'
+    }
+}
