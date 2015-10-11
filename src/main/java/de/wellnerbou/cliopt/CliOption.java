@@ -1,15 +1,12 @@
 package de.wellnerbou.cliopt;
 
-import de.wellnerbou.cliopt.annotations.Description;
+import de.wellnerbou.cliopt.annotations.Option;
 
 import java.lang.reflect.Field;
 
 public class CliOption {
 
 	protected String longopt;
-	protected String shortopt;
-
-	protected boolean required;
 
 	private Field sourceField;
 
@@ -21,16 +18,12 @@ public class CliOption {
 		return longopt;
 	}
 
-	public String getShortopt() {
-		return shortopt;
-	}
-
 	public String getDescription() {
-		return sourceField.isAnnotationPresent(Description.class) ? sourceField.getAnnotation(Description.class).value() : "";
+		return sourceField.getAnnotation(Option.class).description();
 	}
 
 	public boolean isRequired() {
-		return required;
+		return sourceField.getAnnotation(Option.class).required();
 	}
 
 	public Field getSourceField() {

@@ -1,8 +1,7 @@
 package de.wellnerbou.cliopt;
 
-import de.wellnerbou.cliopt.annotations.Description;
+import de.wellnerbou.cliopt.annotations.Argument;
 import de.wellnerbou.cliopt.annotations.Option;
-import de.wellnerbou.cliopt.annotations.Required;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,22 +15,37 @@ public class CliBuilder<T> {
 		this.opt = opt;
 	}
 
+	public CliBuilder(final Class<T> optClass) {
+		try {
+			this.opt = optClass.newInstance();
+		} catch (InstantiationException | IllegalAccessException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	public Cli<T> build() {
-		List<CliOption> cliOptions = new ArrayList<CliOption>();
+		List<CliOption> cliOptions = new ArrayList<>();
+		List<CliArgument> cliArguments = new ArrayList<>();
 		for (Field field : opt.getClass().getDeclaredFields()) {
 			if (field.isAnnotationPresent(Option.class)) {
-				final CliOption build = createCliOption(field);
-				cliOptions.add(build);
+				final CliOption cliOption = createCliOption(field);
+				cliOptions.add(cliOption);
+			}
+			if (field.isAnnotationPresent(Argument.class)) {
+				final CliArgument cliArgument = createCliArgument(field);
+				cliArguments.add(cliArgument);
 			}
 		}
-		return new Cli<T>(cliOptions, opt);
+		return new Cli<T>(cliOptions, cliArguments, opt);
+	}
+
+	private CliArgument createCliArgument(final Field field) {
+		return new CliArgument(field);
 	}
 
 	private CliOption createCliOption(final Field field) {
-		final CliOption cliOption = new CliOptionBuilder()
+		return new CliOptionBuilder()
 				.withField(field)
-				.isRequired(field.isAnnotationPresent(Required.class))
 				.build();
-		return cliOption;
 	}
 }

@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
-public @interface Description {
-	String value();
+public @interface Argument {
+	String description() default "";
+	boolean required() default false;
 }
